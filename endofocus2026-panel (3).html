@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EndoFocus 2026 — Panel de Publicación</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #21262d;
+    --accent: #e8c84a;
+    --accent2: #3b82f6;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --live: #ef4444;
+    --live-bg: rgba(239,68,68,0.1);
+    --talk: #22c55e;
+    --talk-bg: rgba(34,197,94,0.08);
+    --break: #f97316;
+    --posted: rgba(59,130,246,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: #0d1117;
+    font-size: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-top: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .stat {
+    text-align: right;
+  }
+
+  .stat-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .day-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    background: var(--surface);
+  }
+
+  .day-tab {
+    padding: 14px 28px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .day-tab:hover { color: var(--text); }
+  .day-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+
+  .day-section { display: none; }
+  .day-section.active { display: block; }
+
+  .day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .day-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .day-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--border);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .tweet-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, transform 0.1s;
+    position: relative;
+  }
+
+  .tweet-card:hover {
+    border-color: #30363d;
+  }
+
+  .tweet-card.posted {
+    opacity: 0.5;
+    background: var(--posted);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .time-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 4px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .type-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .type-live {
+    background: var(--live-bg);
+    color: var(--live);
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  .type-live::before {
+    content: '● ';
+    font-size: 8px;
+  }
+
+  .type-talk {
+    background: var(--talk-bg);
+    color: var(--talk);
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  .type-break {
+    background: rgba(249,115,22,0.1);
+    color: var(--break);
+    border: 1px solid rgba(249,115,22,0.2);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .card-title small {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .tweet-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c9d1d9;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    width: 100%;
+    resize: none;
+    font-family: 'Sora', sans-serif;
+    transition: border-color 0.2s;
+    min-height: 90px;
+    overflow: hidden;
+  }
+
+  .tweet-text:focus {
+    outline: none;
+    border-color: var(--accent2);
+  }
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header {
+      padding: 12px 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .logo-mark { width: 30px; height: 30px; font-size: 12px; }
+    .logo-text { font-size: 13px; }
+    .logo-sub { font-size: 10px; }
+
+    .header-right {
+      gap: 10px;
+    }
+
+    .stat-num { font-size: 15px; }
+    .stat-label { font-size: 9px; }
+
+    .day-tabs { padding: 0 16px; }
+    .day-tab { padding: 10px 14px; font-size: 12px; }
+
+    .main {
+      padding: 16px 12px 80px;
+    }
+
+    .tweet-card {
+      padding: 14px 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-top {
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .time-badge {
+      font-size: 10px;
+      padding: 3px 7px;
+    }
+
+    .type-badge {
+      font-size: 9px;
+      padding: 3px 8px;
+    }
+
+    .card-title {
+      font-size: 12px;
+      width: 100%;
+    }
+
+    .card-title small {
+      font-size: 10px;
+    }
+
+    .tweet-text {
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+
+    .char-count {
+      font-size: 10px;
+    }
+
+    .card-bottom {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .photo-zone {
+      flex-wrap: wrap;
+    }
+
+    .photo-btn {
+      font-size: 12px;
+      padding: 8px 12px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .mark-done-btn {
+      font-size: 12px;
+      padding: 10px 14px;
+      text-align: center;
+    }
+
+    .publish-btn {
+      font-size: 14px;
+      padding: 12px 18px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .photo-thumb {
+      width: 38px;
+      height: 38px;
+    }
+
+    .section-divider-label {
+      font-size: 9px;
+    }
+
+    .day-header {
+      margin-bottom: 16px;
+    }
+
+    .day-title {
+      font-size: 18px;
+    }
+
+    .toast {
+      bottom: 16px;
+      right: 12px;
+      left: 12px;
+      font-size: 12px;
+      padding: 12px 16px;
+    }
+
+    .photo-hint {
+      font-size: 10px;
+      padding: 5px 8px;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .day-tab { padding: 8px 10px; font-size: 11px; }
+    .tweet-text { font-size: 12px; }
+    .publish-btn { font-size: 13px; }
+  }
+
+
+  .char-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 5px;
+  }
+
+  .char-count.warning { color: var(--break); }
+  .char-count.over { color: var(--live); }
+
+  .card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .photo-zone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .photo-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Sora', sans-serif;
+  }
+
+  .photo-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .photo-preview {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .photo-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .photo-item {
+    position: relative;
+    display: inline-block;
+  }
+
+  .photo-remove {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 16px;
+    height: 16px;
+    background: var(--live);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 9px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .publish-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: all 0.15s;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+  }
+
+  .publish-btn:hover {
+    background: #f0d45a;
+    transform: translateY(-1px);
+  }
+
+  .publish-btn:active {
+    transform: translateY(0);
+  }
+
+  .publish-btn.done {
+    background: var(--border);
+    color: var(--muted);
+    cursor: default;
+    transform: none;
+  }
+
+  .mark-done-btn {
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .mark-done-btn:hover {
+    border-color: var(--talk);
+    color: var(--talk);
+  }
+
+  .posted-label {
+    font-size: 11px;
+    color: var(--talk);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .photo-hint {
+    font-size: 11px;
+    color: var(--muted);
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .photo-hint.visible { display: block; }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 16px;
+  }
+
+  .section-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-divider-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 320px;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
+  input[type="file"] { display: none; }
+
+  .progress-bar {
+    display: flex;
+    gap: 3px;
+    padding: 0 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">EF</div>
+    <div>
+      <div class="logo-text">EndoFocus 2026</div>
+      <div class="logo-sub">Panel de publicación en vivo — X (Twitter)</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="stat">
+      <div class="stat-num" id="postedCount">0</div>
+      <div class="stat-label">Publicados</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="totalCount">0</div>
+      <div class="stat-label">Total</div>
+    </div>
+  </div>
+</header>
+
+<div class="day-tabs">
+  <button class="day-tab active" onclick="switchDay(1)">📅 Día 1 — Jueves 28</button>
+  <button class="day-tab" onclick="switchDay(2)">📅 Día 2 — Viernes 29</button>
+</div>
+
+<div class="main">
+
+  <!-- DÍA 1 -->
+  <div class="day-section active" id="day1">
+    <div class="day-header">
+      <div class="day-title">Jueves 28 de mayo</div>
+      <div class="day-date">#EndoFocus2026 · Día 1</div>
+    </div>
+
+    <!-- BIENVENIDA -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Apertura</div><div class="section-divider-line"></div></div>
+
+    <!-- Tweet 1 -->
+    <div class="tweet-card" id="card-1">
+      <div class="card-top">
+        <div class="time-badge">8:00</div>
+        <span class="type-badge type-talk">Apertura</span>
+        <div class="card-title">Acreditaciones y bienvenida<small>Apertura oficial del congreso</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-1" oninput="updateCount(1)">Arranca #EndoFocus2026 🔬 Dos jornadas de endourología de alto nivel en Córdoba, con cirugías en vivo, disertantes nacionales e internacionales y tecnología de punta. 
+
+📍 Sanatorio Allende + Auditorio Diego de Torres (UCC)
+¡Bienvenidos a la segunda edición!</textarea>
+      <div class="char-count" id="count-1"></div>
+      <div class="photo-hint" id="hint-1">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar (Ctrl+V si las copiaste, o arrástralas).</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(1)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-1"></div>
+          <input type="file" id="file-1" accept="image/*" multiple onchange="addPhotos(1, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(1)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-1" onclick="publish(1)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 2 -->
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Primera charla + Cirugía en vivo</div><div class="section-divider-line"></div></div>
+
+    <div class="tweet-card" id="card-2">
+      <div class="card-top">
+        <div class="time-badge">8:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Dominando el plano: enucleación en HoLEP<small>Dr. Mariano Sebastián González</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-2" oninput="updateCount(2)">Primera charla del día: "Dominando el plano: la esencia de la enucleación en #HoLEP" con @MSGONZALEZURO
+
+El dominio del plano correcto marca la diferencia en la curva de aprendizaje.
+¿Cuántas cirugías necesitás para sentirte cómodo en el plano? 👇 #EndoFocus2026</textarea>
+      <div class="char-count" id="count-2"></div>
+      <div class="photo-hint" id="hint-2">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(2)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-2"></div>
+          <input type="file" id="file-2" accept="image/*" multiple onchange="addPhotos(2, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(2)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-2" onclick="publish(2)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 3 - Cirugía en vivo MiLEP -->
+    <div class="tweet-card" id="card-3">
+      <div class="card-top">
+        <div class="time-badge">9:00</div>
+        <span class="type-badge type-live">Cirugía en vivo</span>
+        <div class="card-title">MiLEP en vivo<small>Dr. Juan Fulla · Potent + Hawk · Modera: Dr. Billordo Peres, Dr. Santillán, Dra. Vertanessian, Dr. Narambuena</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-3" oninput="updateCount(3)">🔴 CIRUGÍA EN VIVO — #MiLEP
+
+@FullaJuan (Chile 🇨🇱) ingresa al quirófano. Procedimiento con instrumental Potent + Hawk de @makewe_urology
+Mesa de moderadores: @nbillordo, @diesantillan, @joseverta12 y Dr. Narambuena.
+Endourología en tiempo real. #EndoFocus2026</textarea>
+      <div class="char-count" id="count-3"></div>
+      <div class="photo-hint" id="hint-3">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(3)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-3"></div>
+          <input type="file" id="file-3" accept="image/*" multiple onchange="addPhotos(3, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(3)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-3" onclick="publish(3)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 4 - ECIRS paso a paso -->
+    <div class="tweet-card" id="card-4">
+      <div class="card-top">
+        <div class="time-badge">10:00</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">ECIRS: paso a paso<small>Dr. Marcelo Baptistussi</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-4" oninput="updateCount(4)">@MBaptistussi (Brasil 🇧🇷) en el escenario con "#ECIRS: paso a paso".
+
+Acceso combinado anterógrado y retrógrado para litiasis complejas. Una técnica que exige coordinación, criterio y tecnología.
+
+Preparando terreno para la cirugía de las 12hs 🔬 #EndoFocus2026</textarea>
+      <div class="char-count" id="count-4"></div>
+      <div class="photo-hint" id="hint-4">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(4)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-4"></div>
+          <input type="file" id="file-4" accept="image/*" multiple onchange="addPhotos(4, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(4)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-4" onclick="publish(4)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 5 - Paclitaxel charla -->
+    <div class="tweet-card" id="card-5">
+      <div class="card-top">
+        <div class="time-badge">10:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Dilataciones ureterales con balón de paclitaxel<small>Dr. Pablo Contreras</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-5" oninput="updateCount(5)">@PabloNContreras sobre dilataciones ureterales con balón de paclitaxel (Elutax).
+
+Un problema frecuente con soluciones que evolucionan. ¿Cuándo y cómo usar el balón medicado?
+
+¿Ya lo usás en tu práctica? #EndoFocus2026 #Endourología</textarea>
+      <div class="char-count" id="count-5"></div>
+      <div class="photo-hint" id="hint-5">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(5)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-5"></div>
+          <input type="file" id="file-5" accept="image/*" multiple onchange="addPhotos(5, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(5)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-5" onclick="publish(5)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 6 - Morcelación HOLEP -->
+    <div class="tweet-card" id="card-6">
+      <div class="card-top">
+        <div class="time-badge">11:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Morcelación en HoLEP: técnica segura<small>Dr. Federico Tirapegui</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-6" oninput="updateCount(6)">Post coffee break: @FedericoTirape1 aborda la morcelación en #HoLEP.
+
+Seguridad, velocidad y prevención de complicaciones. Un paso que muchos subestiman y que puede definir el resultado quirúrgico. #EndoFocus2026</textarea>
+      <div class="char-count" id="count-6"></div>
+      <div class="photo-hint" id="hint-6">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(6)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-6"></div>
+          <input type="file" id="file-6" accept="image/*" multiple onchange="addPhotos(6, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(6)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-6" onclick="publish(6)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 7 - ECIRS Cirugía en vivo -->
+    <div class="tweet-card" id="card-7">
+      <div class="card-top">
+        <div class="time-badge">12:00</div>
+        <span class="type-badge type-live">Cirugía en vivo</span>
+        <div class="card-title">ECIRS (cirugía renal combinada)<small>Dr. Baptistussi + Dr. Rico · SuperMiniPerc Hawk + Redpine + ClearPetra + Potent + Lumenis · Modera: Dr. Pautasso, Dr. Politi, Dr. Colla, Dra. Salazar</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-7" oninput="updateCount(7)">🔴 CIRUGÍA EN VIVO — #ECIRS
+
+Abordaje renal combinado en tiempo real: @MBaptistussi 🇧🇷 + @luisrico89
+Tecnología SuperMiniPerc Hawk + Redpine + ClearPetra + Potent @makewe_urology + Lumenis @bsc_urology
+Moderan: @spautasso79, Dr. Politi, Dr. Colla, Dra. Salazar
+#EndoFocus2026</textarea>
+      <div class="char-count" id="count-7"></div>
+      <div class="photo-hint" id="hint-7">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(7)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-7"></div>
+          <input type="file" id="file-7" accept="image/*" multiple onchange="addPhotos(7, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(7)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-7" onclick="publish(7)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 8 - Cirugía Dilatación Ureteral -->
+    <div class="tweet-card" id="card-8">
+      <div class="card-top">
+        <div class="time-badge">14:00</div>
+        <span class="type-badge type-live">Cirugía en vivo</span>
+        <div class="card-title">Dilatación ureteral con balón paclitaxel en vivo<small>Dr. Pablo Contreras · Elutax · Modera: Dr. Martínez Pagano, Dra. Ruiz, Dr. Vendrell</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-8" oninput="updateCount(8)">🔴 CIRUGÍA EN VIVO — Dilatación ureteral con balón de paclitaxel
+
+@PabloNContreras demuestra en quirófano lo que antes explicó en el escenario. Elutax en acción.
+
+Moderan: @EmaMarPa, Dra. Ruiz, Dr. Vendrell. #EndoFocus2026</textarea>
+      <div class="char-count" id="count-8"></div>
+      <div class="photo-hint" id="hint-8">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(8)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-8"></div>
+          <input type="file" id="file-8" accept="image/*" multiple onchange="addPhotos(8, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(8)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-8" onclick="publish(8)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 9 - Cómo funciona un láser -->
+    <div class="tweet-card" id="card-9">
+      <div class="card-top">
+        <div class="time-badge">15:00</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">¿Cómo funciona un láser?<small>Dr. Juan Fulla</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-9" oninput="updateCount(9)">Vuelta al escenario con @FullaJuan 🇨🇱: "¿Cómo funciona un láser?"
+
+Conocer la física detrás del instrumento cambia la forma en que lo usás. Formación que no se aprende solo en quirófano. #EndoFocus2026 #Endourología</textarea>
+      <div class="char-count" id="count-9"></div>
+      <div class="photo-hint" id="hint-9">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(9)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-9"></div>
+          <input type="file" id="file-9" accept="image/*" multiple onchange="addPhotos(9, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(9)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-9" onclick="publish(9)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 10 - Futuro endourología -->
+    <div class="tweet-card" id="card-10">
+      <div class="card-top">
+        <div class="time-badge">15:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Futuro de la endourología: IA, robótica, descartables<small>Dr. Luis Rico</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-10" oninput="updateCount(10)">@luisrico89: "Futuro de la endourología — IA, descartables, robótica, planificación, punciones"
+
+¿Hacia dónde va la especialidad? Una mirada prospectiva que ya no es ciencia ficción. #EndoFocus2026 #EndourologíaDigital</textarea>
+      <div class="char-count" id="count-10"></div>
+      <div class="photo-hint" id="hint-10">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(10)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-10"></div>
+          <input type="file" id="file-10" accept="image/*" multiple onchange="addPhotos(10, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(10)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-10" onclick="publish(10)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 11 - RIRS cirugía en vivo -->
+    <div class="tweet-card" id="card-11">
+      <div class="card-top">
+        <div class="time-badge">16:30</div>
+        <span class="type-badge type-live">Cirugía en vivo</span>
+        <div class="card-title">RIRS en vivo<small>Dra. Luisa Forero · RedPine + ClearPetra + Potent · Modera: Dra. Guerini, Dra. Romero Echeverría, Dra. Burgi, Dra. Bustos</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-11" oninput="updateCount(11)">🔴 CIRUGÍA EN VIVO — RIRS
+
+La Dra. Luisa Forero 🇨🇴 cierra las cirugías del día.
+#RIRS con RedPine + ClearPetra + Potent. @makewe_urology
+
+Mesa de moderadores: Dra. Guerini, @beluromeche, @MelaniaBurgi, @nataliabustos_
+
+#EndoFocus2026</textarea>
+      <div class="char-count" id="count-11"></div>
+      <div class="photo-hint" id="hint-11">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(11)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-11"></div>
+          <input type="file" id="file-11" accept="image/*" multiple onchange="addPhotos(11, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(11)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-11" onclick="publish(11)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 12 - IA como uróloga -->
+    <div class="tweet-card" id="card-12">
+      <div class="card-top">
+        <div class="time-badge">17:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Cómo uso la IA para optimizar mi día a día<small>Dra. Guadalupe Colucci Camusso</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-12" oninput="updateCount(12)">Cerrando la tarde con @urolo_ga: "Cómo uso la inteligencia artificial para optimizar mi día a día como uróloga"
+
+La IA no es el futuro... es el presente que cada especialista puede empezar a incorporar hoy. #EndoFocus2026 #IAenEndourología</textarea>
+      <div class="char-count" id="count-12"></div>
+      <div class="photo-hint" id="hint-12">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(12)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-12"></div>
+          <input type="file" id="file-12" accept="image/*" multiple onchange="addPhotos(12, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(12)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-12" onclick="publish(12)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 13 - Casos clínicos -->
+    <div class="tweet-card" id="card-13">
+      <div class="card-top">
+        <div class="time-badge">18:00</div>
+        <span class="type-badge type-talk">Cierre día 1</span>
+        <div class="card-title">Casos clínicos: toma de decisiones<small>Cierre del Día 1</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-13" oninput="updateCount(13)">Fin del Día 1 de #EndoFocus2026 con casos clínicos centrados en la toma de decisiones.
+
+El mejor cierre posible: aprender de la complejidad real, discutir en equipo y finalizar la jornada con más herramientas.
+Mañana seguimos 💪 #Endourología</textarea>
+      <div class="char-count" id="count-13"></div>
+      <div class="photo-hint" id="hint-13">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(13)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-13"></div>
+          <input type="file" id="file-13" accept="image/*" multiple onchange="addPhotos(13, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(13)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-13" onclick="publish(13)">Publicar en X →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÍA 2 -->
+  <div class="day-section" id="day2">
+    <div class="day-header">
+      <div class="day-title">Viernes 29 de mayo</div>
+      <div class="day-date">#EndoFocus2026 · Día 2</div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Mañana — Cirugía + Charlas</div><div class="section-divider-line"></div></div>
+
+    <!-- Tweet 14 - HoLEP cirugía en vivo -->
+    <div class="tweet-card" id="card-14">
+      <div class="card-top">
+        <div class="time-badge">8:00</div>
+        <span class="type-badge type-live">Cirugía en vivo</span>
+        <div class="card-title">HoLEP en vivo<small>Dr. Mariano Sebastián González · Lumenis - Hawk · Modera: Dr. Palazzo, Dr. Llan de Rosos, Dr. Peton, Dr. Fernández Long</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-14" oninput="updateCount(14)">☀️ Comenzó el Día 2 de #EndoFocus2026 directamente desde quirófano.
+
+🔴 CIRUGÍA EN VIVO — #HoLEP
+@MSGONZALEZURO utilizando Lumenis @bsc_urology + Hawk @makewe_urology
+
+Moderan: Dr. Palazzo, @mllanderosos, @epeton, @DrJuanFL
+
+#Endourología</textarea>
+      <div class="char-count" id="count-14"></div>
+      <div class="photo-hint" id="hint-14">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(14)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-14"></div>
+          <input type="file" id="file-14" accept="image/*" multiple onchange="addPhotos(14, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(14)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-14" onclick="publish(14)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 15 - Nightmares in HoLEP -->
+    <div class="tweet-card" id="card-15">
+      <div class="card-top">
+        <div class="time-badge">9:00</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Nightmares in HoLEP<small>Dr. Christian Cristallo</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-15" oninput="updateCount(15)">@CristalloCh con "Nightmares in HoLEP" — las complicaciones que nadie quiere vivir pero todos necesitan conocer.
+
+Hablar de lo que sale mal es tan formativo como mostrar lo que sale bien. #EndoFocus2026 #HoLEP</textarea>
+      <div class="char-count" id="count-15"></div>
+      <div class="photo-hint" id="hint-15">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(15)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-15"></div>
+          <input type="file" id="file-15" accept="image/*" multiple onchange="addPhotos(15, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(15)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-15" onclick="publish(15)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 16 - Reutilización ureteroscopios -->
+    <div class="tweet-card" id="card-16">
+      <div class="card-top">
+        <div class="time-badge">9:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Reutilización de ureteroscopios<small>Dr. Horacio Sanguinetti</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-16" oninput="updateCount(16)">@hsanguinetti: reutilización de ureteroscopios.
+
+Costos, seguridad y protocolos. Una discusión que impacta directamente en la sustentabilidad del servicio y en la calidad del procedimiento. #EndoFocus2026 #Endourología</textarea>
+      <div class="char-count" id="count-16"></div>
+      <div class="photo-hint" id="hint-16">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(16)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-16"></div>
+          <input type="file" id="file-16" accept="image/*" multiple onchange="addPhotos(16, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(16)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-16" onclick="publish(16)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 17 - Santo grial -->
+    <div class="tweet-card" id="card-17">
+      <div class="card-top">
+        <div class="time-badge">10:00</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">El santo grial de la endourología moderna<small>Dra. Luisa Forero</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-17" oninput="updateCount(17)">La Dra. Luisa Forero 🇨🇴 con "El santo grial de la endourología moderna".
+
+¿Qué es lo que realmente buscamos en cada procedimiento? Una reflexión sobre el norte de la especialidad desde una referente continental. #EndoFocus2026</textarea>
+      <div class="char-count" id="count-17"></div>
+      <div class="photo-hint" id="hint-17">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(17)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-17"></div>
+          <input type="file" id="file-17" accept="image/*" multiple onchange="addPhotos(17, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(17)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-17" onclick="publish(17)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 18 - Resección tumor vejiga semi-vivo -->
+    <div class="tweet-card" id="card-18">
+      <div class="card-top">
+        <div class="time-badge">10:30</div>
+        <span class="type-badge type-live">Cirugía semi-vivo</span>
+        <div class="card-title">Resección de tumor de vejiga en bloque<small>Dr. Norberto Bernardo</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-18" oninput="updateCount(18)">🎥 CIRUGÍA SEMI-VIVO — Resección de tumor de vejiga en bloque
+
+@BernardoNor9 con técnica de resección en bloque: margen libre, menos fragmentación, mayor información histológica.
+
+Una alternativa que gana espacio en la práctica actual. #EndoFocus2026 #Endourología</textarea>
+      <div class="char-count" id="count-18"></div>
+      <div class="photo-hint" id="hint-18">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(18)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-18"></div>
+          <input type="file" id="file-18" accept="image/*" multiple onchange="addPhotos(18, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(18)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-18" onclick="publish(18)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 19 - RIRS en vivo día 2 -->
+    <div class="tweet-card" id="card-19">
+      <div class="card-top">
+        <div class="time-badge">11:30</div>
+        <span class="type-badge type-live">Cirugía en vivo</span>
+        <div class="card-title">RIRS en vivo<small>Dr. Horacio Sanguinetti · Innovex + InDrive · Modera: Dr. Epelde, Dr. Calabria, Dr. Attar, Dr. Lanfranconi</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-19" oninput="updateCount(19)">🔴 CIRUGÍA EN VIVO — RIRS
+
+@hsanguinetti con ureteroscopio flexible Innovex + InDrive @PromedonEndouro + @bsc_urology
+
+Moderan: Dr. Epelde, @pablo_calabia, Dr. Attar, Dr. Lanfranconi.
+
+Tecnología y criterio, en tiempo real. #EndoFocus2026 #RIRS</textarea>
+      <div class="char-count" id="count-19"></div>
+      <div class="photo-hint" id="hint-19">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(19)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-19"></div>
+          <input type="file" id="file-19" accept="image/*" multiple onchange="addPhotos(19, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(19)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-19" onclick="publish(19)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-label">Tarde</div><div class="section-divider-line"></div></div>
+
+    <!-- Tweet 20 - De principiante a experto HoLEP -->
+    <div class="tweet-card" id="card-20">
+      <div class="card-top">
+        <div class="time-badge">12:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">De principiante a experto: cómo sobrevivir al HoLEP<small>Panel</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-20" oninput="updateCount(20)">"De principiante a experto: cómo sobrevivir al #HoLEP"
+
+¿Cuál fue tu mayor desafío al comenzar con HoLEP? 👇
+
+🔵 El plano de enucleación
+🟡 La morcelación
+🔴 El manejo de complicaciones
+⚪ Aún no empecé
+
+#EndoFocus2026 #FormaciónMédica</textarea>
+      <div class="char-count" id="count-20"></div>
+      <div class="photo-hint" id="hint-20">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(20)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-20"></div>
+          <input type="file" id="file-20" accept="image/*" multiple onchange="addPhotos(20, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(20)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-20" onclick="publish(20)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 21 - IA en AEEP -->
+    <div class="tweet-card" id="card-21">
+      <div class="card-top">
+        <div class="time-badge">13:10</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">Inteligencia Artificial en AEEP<small>Dr. Juan Fulla</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-21" oninput="updateCount(21)">@FullaJuan 🇨🇱 en el escenario con "Inteligencia Artificial en AEEP".
+
+¿Usás IA en tu práctica urológica?
+
+🟢 Sí, en el día a día
+🟡 Ocasionalmente
+🔴 Todavía no
+⚪ No sé por dónde empezar
+
+La tecnología avanza — ¿el urólogo la acompaña? #EndoFocus2026 #IAenMedicina</textarea>
+      <div class="char-count" id="count-21"></div>
+      <div class="photo-hint" id="hint-21">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(21)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-21"></div>
+          <input type="file" id="file-21" accept="image/*" multiple onchange="addPhotos(21, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(21)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-21" onclick="publish(21)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 22 - TIPS tumores uroteliales -->
+    <div class="tweet-card" id="card-22">
+      <div class="card-top">
+        <div class="time-badge">14:30</div>
+        <span class="type-badge type-talk">Charla</span>
+        <div class="card-title">TIPS tratamiento de tumores uroteliales<small>Dr. Norberto Bernardo</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-22" oninput="updateCount(22)">Post-lunch con @BernardoNor9: TIPS para el tratamiento de tumores uroteliales.
+
+Del diagnóstico a la estrategia quirúrgica. Claves prácticas que marcan la diferencia en el día a día. #EndoFocus2026 #Urología</textarea>
+      <div class="char-count" id="count-22"></div>
+      <div class="photo-hint" id="hint-22">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(22)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-22"></div>
+          <input type="file" id="file-22" accept="image/*" multiple onchange="addPhotos(22, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(22)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-22" onclick="publish(22)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 23 - NLP panel -->
+    <div class="tweet-card" id="card-23">
+      <div class="card-top">
+        <div class="time-badge">15:00</div>
+        <span class="type-badge type-talk">Panel</span>
+        <div class="card-title">NLP: de dónde venimos y a dónde vamos<small>Dr. Baptistussi · Dr. Bernardo · Dr. González</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-23" oninput="updateCount(23)">Panel Final: "NLP: de dónde venimos y a dónde vamos"
+
+@MBaptistussi 🇧🇷 + @BernardoNor9 + @MSGONZALEZURO en el mismo escenario.
+Difícil encontrar tres referentes con tanta experiencia en #NLP en un solo panel.
+#EndoFocus2026</textarea>
+      <div class="char-count" id="count-23"></div>
+      <div class="photo-hint" id="hint-23">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(23)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-23"></div>
+          <input type="file" id="file-23" accept="image/*" multiple onchange="addPhotos(23, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(23)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-23" onclick="publish(23)">Publicar en X →</button>
+      </div>
+    </div>
+
+    <!-- Tweet 24 - Cierre -->
+    <div class="tweet-card" id="card-24">
+      <div class="card-top">
+        <div class="time-badge">15:30</div>
+        <span class="type-badge type-break">Cierre</span>
+        <div class="card-title">Cierre oficial del evento<small>#EndoFocus2026</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-24" oninput="updateCount(24)">Y así cierra #EndoFocus2026 🏁
+
+2 días de #endourología, cirugías en vivo, ciencia y comunidad. +200 profesionales de todo el país y de América Latina reunidos en Córdoba con el objetivo de seguir elevando el nivel de la especialidad.
+Hasta la próxima edición 🙌</textarea>
+      <div class="char-count" id="count-24"></div>
+      <div class="photo-hint" id="hint-24">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(24)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-24"></div>
+          <input type="file" id="file-24" accept="image/*" multiple onchange="addPhotos(24, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(24)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-24" onclick="publish(24)">Publicar en X →</button>
+      </div>
+    </div>
+
+
+    <!-- Tweet 25 - Cierre comunidad -->
+    <div class="tweet-card" id="card-25">
+      <div class="card-top">
+        <div class="time-badge">Post-evento</div>
+        <span class="type-badge type-break">Comunidad</span>
+        <div class="card-title">¿Qué te llevás de EndoFocus2026?<small>Tweet de cierre — interacción con la comunidad</small></div>
+      </div>
+      <textarea class="tweet-text" id="text-25" oninput="updateCount(25)">Cerró #EndoFocus2026 y queremos escucharte 👇
+
+¿Qué fue lo que más te aportó de estos dos días?
+
+🔵 Las cirugías en vivo
+🟡 Las charlas y paneles
+🔴 El networking con colegas
+⚪ Todo por igual
+
+¿Lo recomendarías a un colega? Contanos en los comentarios 🙌 #Endourología #Urología</textarea>
+      <div class="char-count" id="count-25"></div>
+      <div class="photo-hint" id="hint-25">📎 Fotos adjuntas: se abrirá X con el texto. Pegá las imágenes manualmente antes de publicar.</div>
+      <div class="card-bottom">
+        <div class="photo-zone">
+          <button class="photo-btn" onclick="triggerPhoto(25)">📷 Agregar foto</button>
+          <div class="photo-preview" id="preview-25"></div>
+          <input type="file" id="file-25" accept="image/*" multiple onchange="addPhotos(25, this)">
+        </div>
+        <button class="mark-done-btn" onclick="markPosted(25)">✓ Marcar publicado</button>
+        <button class="publish-btn" id="btn-25" onclick="publish(25)">Publicar en X →</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast">
+  <div id="toast-msg"></div>
+  <div class="toast-sub" id="toast-sub"></div>
+</div>
+
+<script>
+  const photoData = {};
+  const postedCards = new Set();
+
+  function switchDay(day) {
+    document.querySelectorAll('.day-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('day' + day).classList.add('active');
+    document.querySelectorAll('.day-tab')[day - 1].classList.add('active');
+    document.querySelectorAll('#day' + day + ' .tweet-text').forEach(ta => autoResize(ta));
+  }
+
+  function updateCount(id) {
+    const text = document.getElementById('text-' + id).value;
+    const len = text.length;
+    const el = document.getElementById('count-' + id);
+    el.textContent = len + ' / 280 caracteres';
+    el.className = 'char-count' + (len > 260 ? ' warning' : '') + (len > 280 ? ' over' : '');
+  }
+
+  function triggerPhoto(id) {
+    document.getElementById('file-' + id).click();
+  }
+
+  function addPhotos(id, input) {
+    const files = Array.from(input.files);
+    if (!photoData[id]) photoData[id] = [];
+    
+    files.forEach(file => {
+      if (photoData[id].length >= 4) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        photoData[id].push({ name: file.name, url: e.target.result });
+        renderPhotoPreviews(id);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotoPreviews(id) {
+    const container = document.getElementById('preview-' + id);
+    const hint = document.getElementById('hint-' + id);
+    container.innerHTML = '';
+    
+    (photoData[id] || []).forEach((photo, idx) => {
+      const item = document.createElement('div');
+      item.className = 'photo-item';
+      item.innerHTML = `
+        <img src="${photo.url}" class="photo-thumb" title="${photo.name}">
+        <button class="photo-remove" onclick="removePhoto(${id}, ${idx})">×</button>
+      `;
+      container.appendChild(item);
+    });
+
+    if (photoData[id] && photoData[id].length > 0) {
+      hint.classList.add('visible');
+    } else {
+      hint.classList.remove('visible');
+    }
+  }
+
+  function removePhoto(id, idx) {
+    photoData[id].splice(idx, 1);
+    renderPhotoPreviews(id);
+  }
+
+  function publish(id) {
+    if (postedCards.has(id)) return;
+    const text = document.getElementById('text-' + id).value;
+    const encodedText = encodeURIComponent(text);
+    const url = 'https://twitter.com/intent/tweet?text=' + encodedText;
+    window.open(url, '_blank');
+    
+    const hasPhotos = photoData[id] && photoData[id].length > 0;
+    showToast(
+      '✓ X abierto con el tweet listo',
+      hasPhotos ? 'Pegá las fotos en la ventana de X antes de publicar.' : 'Solo presioná "Publicar" en X.'
+    );
+  }
+
+  function markPosted(id) {
+    postedCards.add(id);
+    const card = document.getElementById('card-' + id);
+    const btn = document.getElementById('btn-' + id);
+    card.classList.add('posted');
+    
+    const bottom = card.querySelector('.card-bottom');
+    bottom.innerHTML = '<span class="posted-label">✓ Publicado</span>';
+    
+    updateStats();
+    showToast('Marcado como publicado', 'Tweet ' + id + ' registrado ✓');
+  }
+
+  function updateStats() {
+    document.getElementById('postedCount').textContent = postedCards.size;
+    document.getElementById('totalCount').textContent = 25;
+  }
+
+  function showToast(msg, sub) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    document.getElementById('toast-sub').textContent = sub || '';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // Auto-resize textareas
+  function autoResize(ta) {
+    ta.style.height = '0px';
+    ta.style.height = (ta.scrollHeight + 4) + 'px';
+  }
+
+  // Init
+  document.querySelectorAll('.tweet-text').forEach(ta => {
+    const id = ta.id.replace('text-', '');
+    updateCount(id);
+    autoResize(ta);
+    ta.addEventListener('input', () => autoResize(ta));
+  });
+  updateStats();
+</script>
+</body>
+</html>
