@@ -4,7 +4,7 @@ Panel de publicación en vivo para la cobertura de EndoFocus 2026 en X (Twitter)
 
 ## 📋 Acceso al panel
 
-https://cjorqueravocos.github.io/endofocus-tweets
+https://cjorqueravocos.github.io/endofocus2026-tweets
 
 ## ¿Cómo usarlo?
 
